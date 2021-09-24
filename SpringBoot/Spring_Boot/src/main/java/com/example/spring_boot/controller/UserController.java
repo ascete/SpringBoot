@@ -24,6 +24,11 @@ public class UserController {
         this.roleService = roleService;
     }
 
+    @GetMapping(value = "/login")
+    public String login() {
+        return "loginpage";
+    }
+
     @GetMapping(value = "/user")
     public String userInfo(@AuthenticationPrincipal User user, Model model){
         model.addAttribute("user", user);
@@ -31,9 +36,12 @@ public class UserController {
         return "userpage";
     }
 
+
     @GetMapping(value = "/admin")
-    public String listUsers(Model model) {
+    public String listUsers(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
         model.addAttribute("allUsers", userService.getAllUsers());
+        model.addAttribute("allRoles", roleService.getAllRoles());
         return "adminpage";
     }
 
@@ -56,14 +64,7 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/edit/{id}")
-    public String editUserForm(@PathVariable("id") long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
-        model.addAttribute("roles", roleService.getAllRoles());
-        return "edit";
-    }
-
-    @PostMapping(value = "/edit")
+    @PostMapping(value = "/admin")
     public String editUser(@ModelAttribute User user, @RequestParam(value = "checkBoxRoles") String[] checkBoxRoles) {
         Set<Role> roleSet = new HashSet<>();
         for (String roles : checkBoxRoles) {
